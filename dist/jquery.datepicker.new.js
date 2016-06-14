@@ -810,9 +810,10 @@
 
 
 			var defaultTopText = '';
-			if (opt.singleDate)
-				defaultTopText = lang('default-single');
-			else if (opt.minDays && opt.maxDays)
+			// if (opt.singleDate)
+			// 	defaultTopText = lang('default-single');
+			// else
+			if (opt.minDays && opt.maxDays)
 				defaultTopText = lang('default-range');
 			else if (opt.minDays)
 				defaultTopText = lang('default-more');
@@ -1130,6 +1131,7 @@
 			$(self).trigger('datepicker-open', {relatedTarget: box});
 			showGap();
 			updateCalendarWidth();
+			showSelectedInfo();
 		}
 
 		function setDateValuesFromDom() {
@@ -1328,15 +1330,15 @@
 			}
 
 			//In case the start is after the end, swap the timestamps
-			if (!opt.singleDate && opt.start && opt.end && opt.start > opt.end)
-			{
-				var tmp = opt.end;
-				opt.end = handleEnd(opt.start);
-				opt.start = handleStart(tmp);
-				if (opt.time.enabled && opt.swapTime) {
-					swapTime();
-				}
-			}
+			// if (!opt.singleDate && opt.start && opt.end && opt.start > opt.end)
+			// {
+			// 	var tmp = opt.end;
+			// 	opt.end = handleEnd(opt.start);
+			// 	opt.start = handleStart(tmp);
+			// 	if (opt.time.enabled && opt.swapTime) {
+			// 		swapTime();
+			// 	}
+			// }
 
 			opt.start = parseInt(opt.start);
 			opt.end = parseInt(opt.end);
@@ -1467,6 +1469,8 @@
 					// }
 					// else
 					// {
+						box.find('.day.hovering').removeClass('hovering');
+						day.addClass('hovering');
 						box.find('.day').each(function()
 						{
 							var time = parseInt($(this).attr('time')),
@@ -1481,26 +1485,57 @@
 							{
 								$(this).removeClass('hovering');
 							}
+							//
+							// if (
+							// 	( opt.start && opt.end ) &&
+							// 	(
+							// 		( opt.start < time && hoverTime >= time ) ||
+							// 		( opt.start > time && hoverTime <= time )
+							// 	)
+							// )
+							// {
+							// 	$(this).addClass('hovering');
+							// }
+							// else
+							// {
+							// 	$(this).removeClass('hovering');
+							// }
 
-							if (
-								( opt.start && !opt.end ) &&
-								(
-									( opt.start < time && hoverTime >= time ) ||
-									( opt.start > time && hoverTime <= time )
-								)
-							)
-							{
-								$(this).addClass('hovering');
+
+							if (!opt.endDateField) {
+								if(hoverTime < opt.end   && (time > hoverTime && time < opt.end)) {
+									$(this).addClass('hovering');
+								} else {
+									$(this).removeClass('hovering');
+								}
+							} else if (opt.endDateField) {
+									if (hoverTime > opt.start && (time <hoverTime && time > opt.start)) {
+											$(this).addClass('hovering');
+									} else {
+										$(this).removeClass('hovering');
+									}
 							}
-							else
-							{
-								$(this).removeClass('hovering');
-							}
+							//
+							//
+							// if (opt.endDateField) {
+							// 	if(hoverTime < opt.start){
+							// 		$(this).removeClass('hovering');
+							// 	} else {
+							// 		$(this).addClass('hovering');
+							// 	}
+							// }
+
 						});
 
-						if (opt.start && !opt.end)
-						{
-							var days = countDays(hoverTime, opt.start);
+						//if (opt.start && !opt.end)
+						//{
+
+						if ((!opt.endDateField && hoverTime < opt.end) || (opt.endDateField && hoverTime > opt.start)) {
+							var countStartFromDate = opt.start;
+							if (!opt.endDateField) {
+									countStartFromDate = opt.end;
+							}
+							var days = countDays(hoverTime, countStartFromDate);
 							if (opt.hoveringTooltip)
 							{
 								if (typeof opt.hoveringTooltip == 'function')
@@ -1513,6 +1548,9 @@
 								}
 							}
 						}
+
+
+						//}
 					//}
 				}
 
@@ -1568,68 +1606,78 @@
 		{
 			var days = Math.ceil( (opt.end - opt.start) / 86400000 ) + 1;
 			if (opt.singleDate) { // Validate if only start is there
-				if (opt.start && !opt.end)
-					box.find('.drp_top-bar').removeClass('error').addClass('normal');
-				else
+				if ((!opt.endDateField && !opt.start) || (opt.endDateField && !opt.end)) {
 					box.find('.drp_top-bar').removeClass('error').removeClass('normal');
-			}
-			else if ( opt.maxDays && days > opt.maxDays)
-			{
-				opt.start = false;
-				opt.end = false;
-				box.find('.day').removeClass('checked');
-				box.find('.drp_top-bar').removeClass('normal').addClass('error').find('.error-top').html( lang('less-than').replace('%d',opt.maxDays) );
-			}
-			else if ( opt.minDays && days < opt.minDays)
-			{
-				opt.start = false;
-				opt.end = false;
-				box.find('.day').removeClass('checked');
-				box.find('.drp_top-bar').removeClass('normal').addClass('error').find('.error-top').html( lang('more-than').replace('%d',opt.minDays) );
-			}
-			else
-			{
-				if (opt.start || opt.end)
+				} else {
 					box.find('.drp_top-bar').removeClass('error').addClass('normal');
-				else
-					box.find('.drp_top-bar').removeClass('error').removeClass('normal');
-			}
-
-			if ( (opt.singleDate && opt.start && !opt.end) || (!opt.singleDate && opt.start && opt.end) )
-			{
-				box.find('.apply-btn').removeClass('disabled');
-			}
-			else
-			{
-				box.find('.apply-btn').addClass('disabled');
-			}
-
-			if (opt.batchMode)
-			{
-				if (
-					(opt.start && opt.startDate && compare_day(opt.start, opt.startDate) < 0) ||
-					(opt.end && opt.endDate && compare_day(opt.end, opt.endDate) > 0)
-				) {
-					opt.start = false;
-					opt.end = false;
-					box.find('.day').removeClass('checked');
 				}
+
+				// if (opt.start && !opt.end)
+				// 	box.find('.drp_top-bar').removeClass('error').addClass('normal');
+				// else
+				// 	box.find('.drp_top-bar').removeClass('error').removeClass('normal');
 			}
+			// else if ( opt.maxDays && days > opt.maxDays)
+			// {
+			// 	opt.start = false;
+			// 	opt.end = false;
+			// 	box.find('.day').removeClass('checked');
+			// 	box.find('.drp_top-bar').removeClass('normal').addClass('error').find('.error-top').html( lang('less-than').replace('%d',opt.maxDays) );
+			// }
+			// else if ( opt.minDays && days < opt.minDays)
+			// {
+			// 	opt.start = false;
+			// 	opt.end = false;
+			// 	box.find('.day').removeClass('checked');
+			// 	box.find('.drp_top-bar').removeClass('normal').addClass('error').find('.error-top').html( lang('more-than').replace('%d',opt.minDays) );
+			// }
+			// else
+			// {
+			// 	if (opt.start || opt.end)
+			// 		box.find('.drp_top-bar').removeClass('error').addClass('normal');
+			// 	else
+			// 		box.find('.drp_top-bar').removeClass('error').removeClass('normal');
+			// }
+			//
+			// if ( (opt.singleDate && opt.start && !opt.end) || (!opt.singleDate && opt.start && opt.end) )
+			// {
+			// 	box.find('.apply-btn').removeClass('disabled');
+			// }
+			// else
+			// {
+			// 	box.find('.apply-btn').addClass('disabled');
+			// }
+			//
+			// if (opt.batchMode)
+			// {
+			// 	if (
+			// 		(opt.start && opt.startDate && compare_day(opt.start, opt.startDate) < 0) ||
+			// 		(opt.end && opt.endDate && compare_day(opt.end, opt.endDate) > 0)
+			// 	) {
+			// 		opt.start = false;
+			// 		opt.end = false;
+			// 		box.find('.day').removeClass('checked');
+			// 	}
+			// }
 		}
 
 		function showSelectedInfo(forceValid,silent)
 		{
-			box.find('.start-day').html('...');
-			box.find('.end-day').html('...');
-			box.find('.selected-days').hide();
+			 box.find('.start-day').html('...');
+			 box.find('.end-day').html('...');
+			 box.find('.selected-days').hide();
+
+
 			if (opt.start)
 			{
+
 				box.find('.start-day').html(getDateString(new Date(parseInt(opt.start))));
 			}
 			if (opt.end)
 			{
 				box.find('.end-day').html(getDateString(new Date(parseInt(opt.end))));
 			}
+			box.find('.apply-btn').removeClass('disabled');
             var dateRange;
 			// if (opt.start && opt.singleDate)
 			// {
@@ -1957,9 +2005,9 @@
 				{
 					html += '<div class="normal-top">' +
 							'<span style="color:#333">'+lang('selected')+' </span> <b class="start-day">...</b>';
-					if ( ! opt.singleDate ) {
+					//if ( ! opt.singleDate ) {
 						html += ' </br><span class="separator-day">'+opt.separator+'</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> '+lang('days')+')</i>';
-					}
+					//}
 					html += '</div>';
 					html += '<div class="error-top">error</div>' +
 						'<div class="default-top">default</div>';
