@@ -19,7 +19,7 @@
 	position:absolute;
 	z-index:5;
 	border:1px solid #bfbfbf;
-	background-color:green;
+	background-color:#efefef;
 	padding: 5px 12px;
 	font-size:12px;
 	line-height:20px;
@@ -41,7 +41,7 @@
 }
 .date-picker-wrapper b
 {
-	color:yellow;
+	color:green;
 	font-weight:700;
 }
 .date-picker-wrapper a
