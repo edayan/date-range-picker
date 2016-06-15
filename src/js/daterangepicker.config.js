@@ -1,7 +1,4 @@
 $(function() {
-    var selectedStartDate,
-        selectedDate,
-        dayInSelectedStartDate;
 
     function startStartDatePicker() {
         $('#start-datetimepicker').dateRangePicker({
@@ -35,28 +32,7 @@ $(function() {
                 var _tooltip = valid ? '' : (t <= yesterday) ? 'Cannot select previous dates' : 'Arrival date cannot be after departure date';
                 return [valid, _class, _tooltip];
             }
-        }, this)
-        .bind('datepicker-first-date-selected', function(event, obj) {
-            event.stopPropagation();
-            selectedDate = obj.date1;
-            selectedStartDate = getFormattedDate(selectedDate);
-            selectedTime = getFormatedTime(selectedDate);
-            $('#start-date-range').val(selectedStartDate + " " + selectedTime);
-        })
-        ;
-    };
-
-    function getFormattedDate(todayTime) {
-        var month = todayTime.getMonth() + 1;
-        var day = todayTime.getDate();
-        var year = todayTime.getFullYear();
-        return day + "." + month + "." + year;
-    };
-
-    function getFormatedTime(todayTime) {
-        var hours = todayTime.getHours();
-        var minutes = todayTime.getMinutes();
-        return hours + ":" + minutes;
+        }, this);
     };
 
     function startEndDatePicker() {

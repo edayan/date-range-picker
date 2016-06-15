@@ -943,7 +943,7 @@
             box.find('.apply-btn').removeClass('disabled');
             var dateRange;
 
-            if (opt.start && opt.end) {
+            if ((!opt.endDateField && opt.start) || (opt.endDateField && opt.end)) {
                 box.find('.selected-days').show().find('.selected-days-num').html(countDays(opt.end, opt.start));
                 box.find('.apply-btn').removeClass('disabled');
                 dateRange = getDateString(new Date(opt.start)) + opt.separator + getDateString(new Date(opt.end));
@@ -1197,9 +1197,7 @@
                 } else {
                     html += '<div class="normal-top">' +
                         '<span style="color:#333">' + lang('selected') + ' </span> <b class="start-day">...</b>';
-                    //if ( ! opt.singleDate ) {
-                    html += ' </br><span class="separator-day">' + opt.separator + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + lang('days') + ')</i>';
-                    //}
+                    html += ' </br><span class="separator-day">' + opt.separator + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">0</span> ' + lang('days') + ')</i>';
                     html += '</div>';
                     html += '<div class="error-top">error</div>' +
                         '<div class="default-top">default</div>';
